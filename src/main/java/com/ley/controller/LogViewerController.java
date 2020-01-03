@@ -1,19 +1,32 @@
 package com.ley.controller;
 
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.ley.dto.QueryDto;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
+@RequestMapping("/ley-logs")
 public class LogViewerController {
 
-    @RequestMapping("/list-log-files")
-    public String listLogFiles() {
+    @GetMapping("/file/list")
+    public String listFolder() {
         return "";
     }
 
-    @RequestMapping("/query")
-    public String query() {
+    /**
+     *
+     * @param startDate
+     * @param endDate
+     * @param keyword
+     * @param logPath log files in the path.
+     * @return
+     */
+    @PostMapping("/query")
+    public String query(@Validated QueryDto queryDto) {
+
         return "";
     }
 }
