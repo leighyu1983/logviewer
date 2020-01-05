@@ -34,54 +34,62 @@ public class LogReaderService {
         int endLineNum = queryDto.getPageNo() * queryDto.getPageSize();
 
         LineIterator it = null;
-        String lastLine = null;
-        int lineNum = 1;
+        StringBuffer lastLine = new StringBuffer("");
+        int lineNum = 0;
         try {
             it = FileUtils.lineIterator(new File(queryDto.getFilePath()), "UTF-8");
             while (it.hasNext()) {
+                lineNum++;
                 // paging
                 if(lineNum < startLineNum) {
                     continue;
                 }
 
                 String lineContent = it.nextLine();
+                processLines(lineContent, lastLine, matchedLines, pattern);
 
-                if(isNewLine(lineContent)) {
-                    if(StringUtils.isEmpty(lastLine)) {
-                        // this is a new line, not sure if current line has multiple line.
-                        // E.g. in other words, not sure if this is an exception line.
-                        lastLine = lineContent;
-                        continue;
-                    } else {
-                        // process last line
-                        matchedLines.add(processLine(pattern, lastLine));
-                        lastLine = lineContent;
-                    }
-                } else {
-                    // muti line paragraph, concat to lastline.
-                    lastLine += StringUtils.isEmpty(lastLine) ? lineContent : "\r\n" + lineContent;
-                    continue;
-                }
-
-                lineNum++;
-                matchedLines.removeAll(Collections.singleton(null));
                 // get page size
+                matchedLines.removeAll(Collections.singleton(null));
                 if(matchedLines.size() == endLineNum) {
                     break;
                 }
             }
-            // process last line in case last line is a new line that didn't process yet.
-            matchedLines.add(processLine(pattern, lastLine));
-            matchedLines.removeAll(Collections.singleton(null));
         } finally {
             if(it != null) {
                 it.close();
             }
         }
 
+        // process last line in case last line is a new line that didn't process yet.
+        matchedLines.add(processOneLine(pattern, lastLine.toString()));
+        matchedLines.removeAll(Collections.singleton(null));
+
         Map<Integer, List<String>> result = new HashMap<>();
         result.put(--lineNum, matchedLines);
         return result;
+    }
+
+    private void processLines(String lineContent, StringBuffer lastLine, List<String> matchedLines, String pattern) {
+        if(isNewLine(lineContent)) {
+            // this is a new line, but cannot judge if current line has multiple lines.
+            // E.g. in other words, not sure if this is an exception line.
+            // lastline is empty means this is the first time run. Should be executed once.
+            if(StringUtils.isEmpty(lastLine)) {
+                lastLine.append(lineContent);
+                // should 'continue' but this is in method non-loop code.
+            } else {
+                // current process handles last time result.
+                // Only this code can judge mutli-lines paragraph finishes.
+                matchedLines.add(processOneLine(pattern, lastLine.toString()));
+                // current line will be handled next time. Clear cache and set new line.
+                lastLine.delete(0, lastLine.length());
+                lastLine.append(lineContent);
+            }
+        } else {
+            // muti line paragraph, concat to lastline.
+            lastLine.append(lastLine.length() == 0 ? lineContent : "\r\n" + lineContent);
+            // should 'continue' but this is in method non-loop code.
+        }
     }
 
     /**
@@ -102,7 +110,7 @@ public class LogReaderService {
         return Pattern.matches(logConfigBean.getLinePattern(), content);
     }
 
-    private String processLine(String pattern, String content) {
+    private String processOneLine(String pattern, String content) {
         if(StringUtils.isEmpty(content)) {
             return null;
         }
