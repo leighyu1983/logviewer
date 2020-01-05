@@ -2,14 +2,20 @@ package com.ley.controller;
 
 
 import com.ley.dto.QueryDto;
+import com.ley.service.LogReaderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/ley-logs")
 public class LogViewerController {
+
+    @Autowired private LogReaderService logReaderService;
 
     @GetMapping("/file/list")
     public String listFolder() {
@@ -17,16 +23,19 @@ public class LogViewerController {
     }
 
     /**
+     * {
+     *   "startDate":"2017-12-12",
+     *   "endDate":"2017-12-12",
+     *   "keyword":"tom jerry",
+     *   "pageNo": 1,
+     *   "pageSize": 10,
+     *   "filePath":"D:\\tmp\\a.log"
+     * }
      *
-     * @param startDate
-     * @param endDate
-     * @param keyword
-     * @param logPath log files in the path.
      * @return
      */
     @PostMapping("/query")
-    public String query(@Validated QueryDto queryDto) {
-
-        return "";
+    public Map<Integer, List<String>> query(@RequestBody @Validated QueryDto queryDto) {
+        return logReaderService.getLogs(queryDto);
     }
 }

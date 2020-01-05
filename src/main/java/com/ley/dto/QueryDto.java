@@ -1,21 +1,24 @@
 package com.ley.dto;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data
 public class QueryDto {
-    @NotEmpty
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date startDate;
-    @NotEmpty
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date endDate;
     private String keyword;
-    @NotEmpty
+    @NotBlank
     private String filePath;
-    @NotEmpty
+    @Min(1)
     private int pageNo;
-    @NotEmpty
+    @NotNull
     private int pageSize;
 }
