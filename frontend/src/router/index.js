@@ -4,6 +4,8 @@ import Home from '@/views/Home.vue'
 
 Vue.use(VueRouter)
 
+const BASE_PATH = '/logviewer-ui/';
+
 const routes = [
   {
     path: '/',
@@ -23,8 +25,8 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
+  mode: 'hash', //'history',
+  base: BASE_PATH, //process.env.BASE_URL,
   routes
 })
 

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/ley-logs")
+@RequestMapping("/logviewer-api")
 public class LogViewerController {
 
     @Autowired private LogReaderService logReaderService;
